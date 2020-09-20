@@ -5,30 +5,35 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-#ENV TOMCAT_MAJOR_VERSION 8
-#ENV TOMCAT_MINOR_VERSION 8.0.11
-#ENV CATALINA_HOME /tomcat
-
-# Install dependencies
+# Install OpenJDK-8
 RUN apt-get update && \
-apt-get install -y git build-essential curl wget software-properties-common zip unzip
+    apt-get install -y openjdk-8-jdk && \
+    apt-get install -y ant && \
+    apt-get clean;
 
-# Install JDK 8
-RUN \
-echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
-add-apt-repository -y ppa:webupd8team/java && \
-apt-get update && \
-apt-get install -y oracle-java8-installer wget unzip tar && \
-rm -rf /var/lib/apt/lists/* && \
-rm -rf /var/cache/oracle-jdk8-installer
+# Fix certificate issues
+RUN apt-get update && \
+    apt-get install ca-certificates-java && \
+    apt-get clean && \
+    update-ca-certificates -f;
 
-# Define commonly used JAVA_HOME variable
-ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
+# Setup JAVA_HOME -- useful for docker commandline
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
+RUN export JAVA_HOME
 
+
+# Install Maven
+RUN sudo apt update && \
+    sudo apt install maven && \
+    
+
+RUN echo JAVA_HOME
+RUN java -version
+RUN mvn -version
 
 #ADD user.sh /user.sh
 #ADD run.sh /run.sh
-RUN chmod +x /*.sh
+#RUN chmod +x /*.sh
 
 #EXPOSE 8080
 
